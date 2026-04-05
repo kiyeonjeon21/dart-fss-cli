@@ -9,6 +9,8 @@ Access all **83 DART API endpoints** from the command line. Designed for both hu
 
 **[Demo & Examples](DEMO.md)** | **[Agent Integration Guide](AGENTS.md)** | **[한국어 가이드](docs/ko.md)**
 
+https://github.com/user-attachments/assets/7696eae7-383d-4540-8242-461ed7cff05d
+
 ## Install
 
 ```bash
