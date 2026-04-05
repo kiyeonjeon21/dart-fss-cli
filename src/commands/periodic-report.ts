@@ -33,6 +33,7 @@ export function registerPeriodicReportCommands(program: Command): void {
       .requiredOption('--corp <name-or-code>', 'Company name (e.g. "삼성전자") or 8-digit corp_code')
       .requiredOption('--year <YYYY>', 'Business year in YYYY format (e.g. 2024). Data from 2015 onward')
       .requiredOption('--quarter <q1|half|q3|annual>', 'Report quarter: q1 (Q1), half (semi-annual), q3 (Q3), annual (full year)')
+      .addHelpText('after', `\nExamples:\n  dart-fss report ${ep.cliName} --corp "삼성전자" --year 2025 --quarter annual --pretty\n  dart-fss report ${ep.cliName} --corp "삼성전자" --year 2025 --quarter annual --fields "corp_name,nm"`)
       .action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);

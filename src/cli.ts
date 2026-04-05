@@ -21,13 +21,22 @@ export function createDartProgram(): Command {
       'Output is JSON by default (compact single-line). Use --pretty for formatted output.\n' +
       'Rate limit: approximately 20,000 requests per day per API key.'
     )
-    .version('0.4.6')
+    .version('0.4.7')
     .option('--api-key <key>', 'DART API key (default: DART_API_KEY env). Get one at https://opendart.fss.or.kr')
     .option('--pretty', 'Pretty-print JSON output (default: compact single-line JSON)')
     .option('--output <file>', 'Save result to file instead of stdout')
     .option('--json <params>', 'Pass raw API parameters as JSON string, bypassing flag parsing')
     .option('--fields <f1,f2,...>', 'Comma-separated field names to include in output (reduces response size for agents)')
-    .option('--dry-run', 'Validate parameters and print the resolved API request without calling the API');
+    .option('--dry-run', 'Validate parameters and print the resolved API request without calling the API')
+    .addHelpText('after', `
+Examples:
+  dart-fss lookup "삼성전자"
+  dart-fss disclosure company --corp "삼성전자" --pretty
+  dart-fss report employee --corp "삼성전자" --year 2025 --quarter annual --pretty
+  dart-fss financial single-account --corp "SK하이닉스" --year 2025 --quarter annual --fields "account_nm,thstrm_amount"
+  dart-fss major lawsuit --corp "카카오" --from 20230101 --to 20251231
+  dart-fss endpoints --json-output
+  dart-fss schema employee`);
 
   registerDisclosureCommands(program);
   registerPeriodicReportCommands(program);

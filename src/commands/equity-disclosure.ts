@@ -29,6 +29,7 @@ export function registerEquityDisclosureCommands(program: Command): void {
       .command(ep.cliName)
       .description(ep.summary)
       .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
+      .addHelpText('after', `\nExamples:\n  dart-fss equity ${ep.cliName} --corp "삼성전자" --pretty\n  dart-fss equity ${ep.cliName} --corp "삼성전자" --fields "repror,stkqy,stkrt"`)
       .action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);

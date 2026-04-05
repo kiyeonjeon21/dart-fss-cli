@@ -33,6 +33,7 @@ export function registerMajorReportCommands(program: Command): void {
       .requiredOption('--corp <name-or-code>', 'Company name (e.g. "삼성전자") or 8-digit corp_code')
       .requiredOption('--from <YYYYMMDD>', 'Start date in YYYYMMDD format (filing date). Data from 2015 onward')
       .requiredOption('--to <YYYYMMDD>', 'End date in YYYYMMDD format (filing date)')
+      .addHelpText('after', `\nExamples:\n  dart-fss major ${ep.cliName} --corp "삼성전자" --from 20230101 --to 20251231 --pretty\n  dart-fss major ${ep.cliName} --corp "카카오" --from 20250101 --to 20251231`)
       .action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);

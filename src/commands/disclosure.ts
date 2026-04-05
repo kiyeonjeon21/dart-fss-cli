@@ -35,6 +35,7 @@ export function registerDisclosureCommands(program: Command): void {
     .option('--corp-cls <cls>', 'Corp class filter: Y=KOSPI, K=KOSDAQ, N=KONEX, E=Other')
     .option('--page <n>', 'Page number, starting from 1 (default: 1)', '1')
     .option('--count <n>', 'Items per page, 1-100 (default: 10)', '10')
+    .addHelpText('after', '\nExamples:\n  dart-fss disclosure list --corp "삼성전자" --from 20250101 --to 20251231 --pretty\n  dart-fss disclosure list --from 20250101 --to 20250131 --count 20')
     .action(async (opts) => {
       const globalOpts = getGlobalOpts(group);
       const apiKey = getApiKey(globalOpts.apiKey);
@@ -64,6 +65,7 @@ export function registerDisclosureCommands(program: Command): void {
       'Accepts company name (e.g. "삼성전자") or 8-digit corp_code.'
     )
     .requiredOption('--corp <name-or-code>', 'Company name (e.g. "삼성전자") or 8-digit corp_code')
+    .addHelpText('after', '\nExamples:\n  dart-fss disclosure company --corp "삼성전자" --pretty\n  dart-fss disclosure company --corp 00126380 --fields "corp_name,ceo_nm,adres"')
     .action(async (opts) => {
       const globalOpts = getGlobalOpts(group);
       const apiKey = getApiKey(globalOpts.apiKey);
