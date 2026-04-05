@@ -135,11 +135,14 @@
   .install-panel code {
     display: block;
     font-family: var(--mono);
-    font-size: 13px;
+    font-size: 12px;
     color: var(--accent);
     white-space: pre;
     overflow-x: auto;
     padding-right: 70px;
+  }
+  @media (max-width: 540px) {
+    .install-panel code { font-size: 10px; }
   }
   .install-panel .dim { color: var(--text-dim); }
 
