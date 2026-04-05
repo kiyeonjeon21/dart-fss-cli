@@ -26,6 +26,13 @@ if [ "$NODE_MAJOR" -lt 18 ]; then
   error "Node.js 18 이상이 필요합니다. (현재: $(node -v))"
 fi
 
+# ── Clean up broken previous installation ────────────────────────
+NPM_GLOBAL_DIR="$(npm prefix -g)/lib/node_modules/${PACKAGE_NAME}"
+if [ -L "$NPM_GLOBAL_DIR" ] && [ ! -e "$NPM_GLOBAL_DIR" ]; then
+  warn "Removing broken previous installation..."
+  rm "$NPM_GLOBAL_DIR"
+fi
+
 # ── Install from npm registry ────────────────────────────────────
 info "dart-fss-cli 설치 중..."
 npm install -g "${PACKAGE_NAME}" 2>&1
