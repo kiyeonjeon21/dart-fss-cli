@@ -3,131 +3,126 @@
 [![npm version](https://img.shields.io/npm/v/dart-fss-cli)](https://www.npmjs.com/package/dart-fss-cli)
 [![license](https://img.shields.io/npm/l/dart-fss-cli)](LICENSE)
 
-금융감독원 [DART Open API](https://opendart.fss.or.kr)의 **83개 전체 엔드포인트**를 커맨드라인에서 사용할 수 있는 CLI.
+CLI for the Korea FSS [DART Open API](https://opendart.fss.or.kr) (Electronic Disclosure System).
 
-사람이 직접 쓰기에도, AI 에이전트(Claude Code 등)에게 시키기에도 좋게 설계했습니다.
+Access all **83 DART API endpoints** from the command line. Designed for both humans and AI agents (Claude Code, etc.).
 
-**[Demo & 사용 예시](DEMO.md)** | **[AI 에이전트 연동 가이드](AGENTS.md)** | **[한국어 가이드](docs/ko.md)**
+**[Demo & Examples](DEMO.md)** | **[Agent Integration Guide](AGENTS.md)** | **[한국어 가이드](docs/ko.md)**
 
-## 설치
+## Install
 
 ```bash
 npx dart-fss-cli --help
 ```
 
-설치 없이 바로 실행됩니다. 글로벌 설치를 원하면:
+Runs instantly without installation. For global install:
 
 ```bash
 npm install -g dart-fss-cli
 ```
 
-## 사전 준비
+## Setup
 
-[DART Open API](https://opendart.fss.or.kr)에서 API 키를 발급받으세요.
+Get an API key from [DART Open API](https://opendart.fss.or.kr).
 
 ```bash
 export DART_API_KEY=your_api_key_here
 ```
 
-## 사용 예시
+## Usage
 
 ```bash
-# 회사 검색
+# Look up a company (Korean name → corp_code)
 dart-fss lookup "삼성전자"
 
-# 기업 개황
+# Company overview
 dart-fss disclosure company --corp "삼성전자" --pretty
 
-# 공시 검색
+# Search filings
 dart-fss disclosure list --corp "카카오" --from 20250101 --to 20260101
 
-# 직원 현황 (필요한 필드만)
+# Employee status (filtered fields)
 dart-fss report employee --corp "삼성전자" --year 2025 --quarter annual \
   --fields "sexdstn,fo_bbm,sm,avrg_cnwk_sdytrn"
 
-# 재무제표
+# Financial statements
 dart-fss financial single-account --corp "SK하이닉스" --year 2025 --quarter annual --pretty
 
-# 대량보유 상황
+# Major shareholding
 dart-fss equity major-stock --corp "네이버"
 
-# 전환사채 발행 이력
-dart-fss major convertible-bond --corp "카카오" --from 20230101 --to 20251231
-
-# 결과를 파일로 저장
+# Save to file
 dart-fss disclosure company --corp "삼성전자" --output result.json
 ```
 
-> 한글 회사명을 그대로 입력하면 됩니다. 영문 등록 회사(NAVER, LG 등)도 한글로 검색 가능합니다.
+> Korean company names work directly. Companies registered with English names (NAVER, LG, etc.) can also be found using Korean input.
 
-## 커맨드 그룹
+## Command Groups
 
-| 커맨드 | 설명 | API 수 |
-|--------|------|--------|
-| `disclosure` | 공시정보 (공시 검색, 기업 개황 등) | 4 |
-| `report` | 정기보고서 (직원현황, 임원현황, 배당 등) | 28 |
-| `financial` | 재무정보 (재무제표, 재무지표, XBRL) | 7 |
-| `equity` | 지분공시 (대량보유, 임원 주요주주) | 2 |
-| `major` | 주요사항보고서 (증자/감자, M&A 등) | 36 |
-| `securities` | 증권신고서 (지분증권, 채무증권 등) | 6 |
+| Command | Description | APIs |
+|---------|-------------|------|
+| `disclosure` | Filings search, company overview, documents | 4 |
+| `report` | Periodic reports (employees, executives, dividends, audit) | 28 |
+| `financial` | Financial statements, indices, XBRL | 7 |
+| `equity` | Equity disclosure (major holdings, executive ownership) | 2 |
+| `major` | Major events (capital changes, bonds, M&A, lawsuits) | 36 |
+| `securities` | Securities registration statements | 6 |
 
-## 주요 옵션
+## Options
 
-| 옵션 | 설명 |
-|------|------|
-| `--pretty` | JSON 보기 좋게 출력 |
-| `--fields <f1,f2>` | 응답 필드 필터링 (context window 절약) |
-| `--dry-run` | API 호출 없이 파라미터 검증 |
-| `--output <file>` | 결과를 파일로 저장 |
-| `--json <params>` | raw API 파라미터를 JSON으로 직접 전달 |
-| `--api-key <key>` | API 키 (기본: `DART_API_KEY` 환경변수) |
+| Option | Description |
+|--------|-------------|
+| `--pretty` | Pretty-print JSON output |
+| `--fields <f1,f2>` | Filter response fields (saves context window for agents) |
+| `--dry-run` | Validate parameters without calling the API |
+| `--output <file>` | Save result to file |
+| `--json <params>` | Pass raw API parameters as JSON |
+| `--api-key <key>` | DART API key (default: `DART_API_KEY` env) |
 
-## 분기 코드
+## Quarter Codes
 
-`--quarter` 옵션에 사용하는 값:
+| Value | Meaning |
+|-------|---------|
+| `q1` | Q1 report |
+| `half` | Semi-annual |
+| `q3` | Q3 report |
+| `annual` | Annual report |
 
-| 값 | 의미 |
-|------|------|
-| `q1` | 1분기 |
-| `half` | 반기 |
-| `q3` | 3분기 |
-| `annual` | 사업보고서 |
+## Agent Integration
 
-## AI 에이전트 연동
-
-dart-fss-cli는 AI 에이전트가 스스로 API를 탐색하고 호출할 수 있도록 설계되었습니다.
+Built for AI agents to self-discover and call endpoints:
 
 ```bash
-# 엔드포인트 탐색 (파이프 시 자동 JSON)
+# Discover endpoints (auto-JSON when piped)
 dart-fss endpoints --json-output
 
-# 파라미터 스키마 조회
+# Inspect parameter schema
 dart-fss schema dividend
 
-# API 호출 없이 검증
+# Validate without API call
 dart-fss report dividend --corp "삼성전자" --year 2025 --quarter annual --dry-run
 
-# 에러도 JSON
+# Structured JSON errors
 # {"error":true,"code":"013","description":"No data found","message":"..."}
 ```
 
-Claude Code의 `CLAUDE.md`에 추가하면 자연어로 DART 데이터를 조회할 수 있습니다:
+Add to your `CLAUDE.md` to use as a tool:
 
 ```markdown
 ## Available Tools
 
-dart-fss-cli가 설치되어 있습니다. 한국 기업의 공시 정보가 필요하면 사용하세요.
+dart-fss-cli is installed. Use it for Korean corporate disclosure data.
 
-- `dart-fss endpoints --json-output` — 사용 가능한 API 목록
-- `dart-fss schema <endpoint>` — API 파라미터 확인
-- `dart-fss lookup <회사명>` — 회사 코드 검색
-- 항상 `--fields`로 필요한 필드만 요청하세요
-- 예시: `dart-fss report employee --corp "삼성전자" --year 2025 --quarter annual --fields "corp_name,sm"`
+- `dart-fss endpoints --json-output` — list available APIs
+- `dart-fss schema <endpoint>` — get parameter schema
+- `dart-fss lookup <name>` — search company by name
+- Always use `--fields` to limit response size
+- Example: `dart-fss report employee --corp "삼성전자" --year 2025 --quarter annual --fields "corp_name,sm"`
 ```
 
-자세한 내용은 [AGENTS.md](AGENTS.md)와 [DEMO.md](DEMO.md)를 참고하세요.
+See [AGENTS.md](AGENTS.md) and [DEMO.md](DEMO.md) for detailed examples.
 
-## 프로그래밍 방식 사용
+## Programmatic Usage
 
 ```typescript
 import { createDartProgram } from 'dart-fss-cli';
