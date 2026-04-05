@@ -13,7 +13,7 @@ export function createDartProgram(): Command {
   program
     .name('dart-fss')
     .description('DART Open API CLI — Korea FSS Electronic Disclosure')
-    .version('0.1.0')
+    .version('0.2.0')
     .option('--api-key <key>', 'DART API key (default: DART_API_KEY env)')
     .option('--pretty', 'Pretty-print JSON output')
     .option('--output <file>', 'Save result to file');
