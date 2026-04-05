@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="kiyeonjeon21/dart-fss-cli"
 PACKAGE_NAME="dart-fss-cli"
 BIN_NAME="dart-fss"
 
@@ -18,12 +17,12 @@ warn()  { printf "${YELLOW}⚠${NC} %s\n" "$1"; }
 error() { printf "${RED}✖${NC} %s\n" "$1" >&2; exit 1; }
 
 # ── Check prerequisites ──────────────────────────────────────────
-command -v node >/dev/null 2>&1 || error "Node.js가 필요합니다. https://nodejs.org 에서 설치해주세요."
-command -v npm  >/dev/null 2>&1 || error "npm이 필요합니다."
+command -v node >/dev/null 2>&1 || error "Node.js is required. Install it from https://nodejs.org"
+command -v npm  >/dev/null 2>&1 || error "npm is required."
 
 NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]')
 if [ "$NODE_MAJOR" -lt 18 ]; then
-  error "Node.js 18 이상이 필요합니다. (현재: $(node -v))"
+  error "Node.js 18+ is required. (current: $(node -v))"
 fi
 
 # ── Clean up broken previous installation ────────────────────────
@@ -34,26 +33,49 @@ if [ -L "$NPM_GLOBAL_DIR" ] && [ ! -e "$NPM_GLOBAL_DIR" ]; then
 fi
 
 # ── Install from npm registry ────────────────────────────────────
-info "dart-fss-cli 설치 중..."
+info "Installing dart-fss-cli..."
 npm install -g "${PACKAGE_NAME}" 2>&1
 
 if command -v "$BIN_NAME" >/dev/null 2>&1; then
-  ok "설치 완료! ($(${BIN_NAME} --version 2>/dev/null || echo 'v0.1.0'))"
+  ok "Installed dart-fss-cli $(${BIN_NAME} --version 2>/dev/null)"
 else
-  # npm global bin이 PATH에 없는 경우
   NPM_BIN="$(npm prefix -g)/bin"
-  warn "${BIN_NAME}이 PATH에 없습니다."
-  warn "다음을 셸 설정에 추가하세요:"
+  warn "${BIN_NAME} is not in your PATH."
+  warn "Add this to your shell profile:"
   echo ""
   echo "  export PATH=\"${NPM_BIN}:\$PATH\""
   echo ""
 fi
 
-# ── API key setup hint ───────────────────────────────────────────
+# ── Onboarding: API key setup ────────────────────────────────────
 echo ""
-info "DART API 키 설정:"
-echo "  export DART_API_KEY=your_api_key_here"
+info "Setup: DART API key is required to use this CLI."
+info "Get a free key at: https://opendart.fss.or.kr"
 echo ""
-info "API 키 발급: https://opendart.fss.or.kr"
+
+if [ -n "${DART_API_KEY:-}" ]; then
+  ok "DART_API_KEY is already set."
+else
+  printf "${CYAN}▸${NC} Enter your DART API key (or press Enter to skip): "
+  read -r API_KEY
+  if [ -n "$API_KEY" ]; then
+    SHELL_NAME=$(basename "$SHELL")
+    case "$SHELL_NAME" in
+      zsh)  RC_FILE="$HOME/.zshrc" ;;
+      bash) RC_FILE="$HOME/.bashrc" ;;
+      *)    RC_FILE="$HOME/.profile" ;;
+    esac
+
+    echo "" >> "$RC_FILE"
+    echo "export DART_API_KEY=$API_KEY" >> "$RC_FILE"
+    export DART_API_KEY="$API_KEY"
+    ok "API key saved to $RC_FILE"
+    info "Run 'source $RC_FILE' or open a new terminal to apply."
+  else
+    warn "Skipped. Set it later:"
+    echo "  export DART_API_KEY=your_api_key_here"
+  fi
+fi
+
 echo ""
-ok "사용법: ${BIN_NAME} --help"
+ok "Ready! Try: dart-fss lookup \"삼성전자\""
