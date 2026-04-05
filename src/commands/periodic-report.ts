@@ -3,7 +3,7 @@ import { dartFetch } from '../client.js';
 import { getApiKey } from '../config.js';
 import { resolveCorpCode } from '../corp-code.js';
 import { parseJsonParams } from '../json-params.js';
-import { writeOutput } from '../output.js';
+import { writeOutput, writeDryRun } from '../output.js';
 import { REGISTRY_BY_GROUP } from '../registry.js';
 import { REPRT_CODE_MAP } from '../types.js';
 import type { DartCliOptions } from '../types.js';
@@ -45,14 +45,11 @@ export function registerPeriodicReportCommands(program: Command): void {
         const corpCode = await resolveCorpCode(opts.corp, apiKey);
         const reprtCode = REPRT_CODE_MAP[opts.quarter];
         if (!reprtCode) {
-          console.error(`Invalid quarter: ${opts.quarter} (must be one of: q1, half, q3, annual)`);
-          process.exit(1);
+          throw new Error(`Invalid quarter: ${opts.quarter} (must be one of: q1, half, q3, annual)`);
         }
-        const data = await dartFetch({
-          apiKey,
-          path: `/${ep.path}`,
-          params: { corp_code: corpCode, bsns_year: opts.year, reprt_code: reprtCode },
-        });
+        const params = { corp_code: corpCode, bsns_year: opts.year, reprt_code: reprtCode };
+        if (globalOpts.dryRun) { writeDryRun(`/${ep.path}`, params, globalOpts); return; }
+        const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
         writeOutput(data, globalOpts);
       });
   }

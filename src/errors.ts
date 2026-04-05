@@ -1,4 +1,4 @@
-const DART_STATUS_MESSAGES: Record<string, string> = {
+export const DART_STATUS_MESSAGES: Record<string, string> = {
   '000': 'OK',
   '010': 'Unregistered API key',
   '011': 'Disabled API key',
@@ -23,6 +23,23 @@ export class DartApiError extends Error {
     super(`DART API error [${statusCode}]: ${description} — ${dartMessage}`);
     this.name = 'DartApiError';
   }
+
+  toJSON() {
+    return {
+      error: true,
+      code: this.statusCode,
+      description: DART_STATUS_MESSAGES[this.statusCode] || 'Unknown error',
+      message: this.dartMessage,
+    };
+  }
+}
+
+export function formatErrorJson(err: unknown): string {
+  if (err instanceof DartApiError) {
+    return JSON.stringify(err.toJSON());
+  }
+  const message = err instanceof Error ? err.message : String(err);
+  return JSON.stringify({ error: true, code: 'CLI_ERROR', message });
 }
 
 export function checkDartStatus(data: { status?: string; message?: string }): void {

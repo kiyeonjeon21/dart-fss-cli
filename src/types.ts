@@ -32,11 +32,14 @@ export interface CorpCodeEntry {
   corp_name: string;
   stock_code: string;
   modify_date: string;
+  korean_name?: string;
+  stock_name?: string;
 }
 
 export interface DartCliOptions extends GlobalOutputOptions {
   apiKey?: string;
   json?: string;
+  dryRun?: boolean;
 }
 
 export const REPRT_CODE_MAP: Record<string, string> = {

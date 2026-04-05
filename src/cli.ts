@@ -21,11 +21,13 @@ export function createDartProgram(): Command {
       'Output is JSON by default (compact single-line). Use --pretty for formatted output.\n' +
       'Rate limit: approximately 20,000 requests per day per API key.'
     )
-    .version('0.3.2')
+    .version('0.4.0')
     .option('--api-key <key>', 'DART API key (default: DART_API_KEY env). Get one at https://opendart.fss.or.kr')
     .option('--pretty', 'Pretty-print JSON output (default: compact single-line JSON)')
     .option('--output <file>', 'Save result to file instead of stdout')
-    .option('--json <params>', 'Pass raw API parameters as JSON string, bypassing flag parsing');
+    .option('--json <params>', 'Pass raw API parameters as JSON string, bypassing flag parsing')
+    .option('--fields <f1,f2,...>', 'Comma-separated field names to include in output (reduces response size for agents)')
+    .option('--dry-run', 'Validate parameters and print the resolved API request without calling the API');
 
   registerDisclosureCommands(program);
   registerPeriodicReportCommands(program);
@@ -40,13 +42,27 @@ export function createDartProgram(): Command {
 
   program
     .command('endpoints')
-    .description('List all registered API endpoints')
+    .description('List all registered API endpoints. Outputs JSON when stdout is not a TTY or --json-output is used.')
     .option('--group <group>', 'disclosure, report, financial, equity, major, securities')
+    .option('--json-output', 'Force JSON output')
     .action((opts) => {
       let endpoints = REGISTRY;
       if (opts.group) {
         endpoints = endpoints.filter((ep) => ep.group === opts.group);
       }
+
+      const useJson = opts.jsonOutput || !process.stdout.isTTY;
+      if (useJson) {
+        const data = endpoints.map((ep) => ({
+          name: ep.cliName,
+          group: ep.group,
+          pattern: ep.pattern,
+          description: ep.summary,
+        }));
+        console.log(JSON.stringify(data));
+        return;
+      }
+
       console.log(`${endpoints.length} endpoints:\n`);
       const groups = new Map<string, typeof endpoints>();
       for (const ep of endpoints) {

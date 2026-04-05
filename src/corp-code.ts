@@ -2,8 +2,12 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from 'no
 import { inflateRawSync } from 'node:zlib';
 import { XMLParser } from 'fast-xml-parser';
 import { CACHE_DIR, CORP_CODE_CACHE_PATH, CORP_CODE_CACHE_MAX_AGE_MS } from './config.js';
-import { dartFetchBinary } from './client.js';
+import { dartFetch, dartFetchBinary } from './client.js';
 import type { CorpCodeEntry } from './types.js';
+
+function isNonKoreanName(name: string): boolean {
+  return !/[\uAC00-\uD7AF]/.test(name);
+}
 
 function ensureCacheDir(): void {
   if (!existsSync(CACHE_DIR)) {
@@ -72,6 +76,24 @@ export async function refreshCorpCodeCache(apiKey: string): Promise<CorpCodeEntr
   const xml = extractXmlFromZip(zipData);
   const entries = parseCorpCodeXml(xml);
 
+  // Enrich listed companies that have non-Korean names with Korean name from /company.json
+  const needsEnrichment = entries.filter(
+    (e) => e.stock_code && e.stock_code.trim() !== '' && isNonKoreanName(e.corp_name),
+  );
+  if (needsEnrichment.length > 0) {
+    console.error(`Enriching ${needsEnrichment.length} listed companies with Korean names...`);
+    for (const entry of needsEnrichment) {
+      try {
+        const data = await dartFetch({ apiKey, path: '/company.json', params: { corp_code: entry.corp_code } });
+        entry.korean_name = String(data.corp_name || '');
+        entry.stock_name = String(data.stock_name || '');
+      } catch {
+        // Skip if company endpoint fails
+      }
+    }
+    console.error('Enrichment complete.');
+  }
+
   ensureCacheDir();
   writeFileSync(CORP_CODE_CACHE_PATH, JSON.stringify(entries), 'utf-8');
   console.error(`Cache saved: ${entries.length} corporations`);
@@ -92,27 +114,35 @@ export async function resolveCorpCode(nameOrCode: string, apiKey: string): Promi
   const entries = await getCorpCodes(apiKey);
   const term = nameOrCode.trim();
 
-  const exact = entries.find((e) => e.corp_name === term || e.stock_code === term);
+  const exact = entries.find(
+    (e) => e.corp_name === term || e.stock_code === term || e.korean_name === term || e.stock_name === term,
+  );
   if (exact) return exact.corp_code;
 
-  const partial = entries.filter((e) => e.corp_name.includes(term));
+  const partial = entries.filter(
+    (e) => e.corp_name.includes(term) || (e.korean_name && e.korean_name.includes(term)),
+  );
   if (partial.length === 1) return partial[0].corp_code;
   if (partial.length > 1) {
-    console.error(`Multiple matches for "${term}":`);
-    partial.slice(0, 10).forEach((e) => {
-      console.error(`  ${e.corp_code} — ${e.corp_name} (${e.stock_code || 'unlisted'})`);
-    });
-    if (partial.length > 10) console.error(`  ... and ${partial.length - 10} more`);
-    process.exit(1);
+    // If exactly one listed company (has stock_code), prefer it
+    const listed = partial.filter((e) => e.stock_code && e.stock_code.length > 0);
+    if (listed.length === 1) return listed[0].corp_code;
+    const displayName = (e: CorpCodeEntry) => e.korean_name || e.corp_name;
+    const matches = partial.slice(0, 10).map((e) => `${e.corp_code} — ${displayName(e)} (${e.stock_code || 'unlisted'})`);
+    throw new Error(`Multiple matches for "${term}": ${matches.join(', ')}${partial.length > 10 ? ` ... and ${partial.length - 10} more` : ''}`);
   }
 
-  console.error(`No corporation found for "${term}".`);
-  process.exit(1);
+  throw new Error(`No corporation found for "${term}".`);
 }
 
 export async function lookupCorpCode(term: string, apiKey: string): Promise<CorpCodeEntry[]> {
   const entries = await getCorpCodes(apiKey);
   return entries.filter(
-    (e) => e.corp_name.includes(term) || e.corp_code === term || e.stock_code === term,
+    (e) =>
+      e.corp_name.includes(term) ||
+      e.corp_code === term ||
+      e.stock_code === term ||
+      (e.korean_name && e.korean_name.includes(term)) ||
+      (e.stock_name && e.stock_name.includes(term)),
   );
 }

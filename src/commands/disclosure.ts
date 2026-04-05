@@ -3,7 +3,7 @@ import { dartFetch } from '../client.js';
 import { getApiKey } from '../config.js';
 import { resolveCorpCode, lookupCorpCode, refreshCorpCodeCache } from '../corp-code.js';
 import { parseJsonParams } from '../json-params.js';
-import { writeOutput } from '../output.js';
+import { writeOutput, writeDryRun } from '../output.js';
 import { REGISTRY_BY_GROUP } from '../registry.js';
 import type { DartCliOptions } from '../types.js';
 
@@ -52,6 +52,7 @@ export function registerDisclosureCommands(program: Command): void {
       if (opts.corpCls) params.corp_cls = opts.corpCls;
       params.page_no = opts.page;
       params.page_count = opts.count;
+      if (globalOpts.dryRun) { writeDryRun('/list.json', params, globalOpts); return; }
       const data = await dartFetch({ apiKey, path: '/list.json', params });
       writeOutput(data, globalOpts);
     });
@@ -73,7 +74,9 @@ export function registerDisclosureCommands(program: Command): void {
         return;
       }
       const corpCode = await resolveCorpCode(opts.corp, apiKey);
-      const data = await dartFetch({ apiKey, path: '/company.json', params: { corp_code: corpCode } });
+      const params = { corp_code: corpCode };
+      if (globalOpts.dryRun) { writeDryRun('/company.json', params, globalOpts); return; }
+      const data = await dartFetch({ apiKey, path: '/company.json', params });
       writeOutput(data, globalOpts);
     });
 
@@ -95,7 +98,9 @@ export function registerDisclosureCommands(program: Command): void {
             return;
           }
           const corpCode = await resolveCorpCode(opts.corp, apiKey);
-          const data = await dartFetch({ apiKey, path: `/${ep.path}`, params: { corp_code: corpCode } });
+          const params = { corp_code: corpCode };
+          if (globalOpts.dryRun) { writeDryRun(`/${ep.path}`, params, globalOpts); return; }
+          const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
           writeOutput(data, globalOpts);
         });
     }
@@ -114,8 +119,7 @@ export function registerLookupCommand(program: Command): void {
       const apiKey = getApiKey(globalOpts.apiKey);
       const results = await lookupCorpCode(term, apiKey);
       if (results.length === 0) {
-        console.error(`No corporation found for "${term}".`);
-        process.exit(1);
+        throw new Error(`No corporation found for "${term}".`);
       }
       writeOutput(results, globalOpts);
     });

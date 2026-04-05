@@ -3,7 +3,7 @@ import { dartFetch } from '../client.js';
 import { getApiKey } from '../config.js';
 import { resolveCorpCode } from '../corp-code.js';
 import { parseJsonParams } from '../json-params.js';
-import { writeOutput } from '../output.js';
+import { writeOutput, writeDryRun } from '../output.js';
 import { REGISTRY_BY_GROUP } from '../registry.js';
 import { REPRT_CODE_MAP, IDX_CL_CODE_MAP } from '../types.js';
 import type { DartCliOptions } from '../types.js';
@@ -60,8 +60,7 @@ export function registerFinancialCommands(program: Command): void {
         const corpCode = await resolveCorpCode(opts.corp, apiKey);
         const reprtCode = REPRT_CODE_MAP[opts.quarter];
         if (!reprtCode) {
-          console.error(`Invalid quarter: ${opts.quarter}`);
-          process.exit(1);
+          throw new Error(`Invalid quarter: ${opts.quarter} (must be one of: q1, half, q3, annual)`);
         }
         const params: Record<string, string> = {
           corp_code: corpCode,
@@ -79,6 +78,7 @@ export function registerFinancialCommands(program: Command): void {
             }
           }
         }
+        if (globalOpts.dryRun) { writeDryRun(`/${ep.path}`, params, globalOpts); return; }
         const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
         writeOutput(data, globalOpts);
       });
@@ -103,8 +103,7 @@ export function registerFinancialCommands(program: Command): void {
         }
         const reprtCode = REPRT_CODE_MAP[opts.quarter];
         if (!reprtCode) {
-          console.error(`Invalid quarter: ${opts.quarter}`);
-          process.exit(1);
+          throw new Error(`Invalid quarter: ${opts.quarter} (must be one of: q1, half, q3, annual)`);
         }
         const params: Record<string, string> = {
           corp_code: opts.corp,
@@ -114,6 +113,7 @@ export function registerFinancialCommands(program: Command): void {
         if (opts.idxClCode) {
           params.idx_cl_code = IDX_CL_CODE_MAP[opts.idxClCode] || opts.idxClCode;
         }
+        if (globalOpts.dryRun) { writeDryRun(`/${ep.path}`, params, globalOpts); return; }
         const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
         writeOutput(data, globalOpts);
       });
@@ -129,11 +129,9 @@ export function registerFinancialCommands(program: Command): void {
             writeOutput(data, globalOpts);
             return;
           }
-          const data = await dartFetch({
-            apiKey,
-            path: `/${ep.path}`,
-            params: { sj_div: opts.sjDiv },
-          });
+          const params = { sj_div: opts.sjDiv };
+          if (globalOpts.dryRun) { writeDryRun(`/${ep.path}`, params, globalOpts); return; }
+          const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
           writeOutput(data, globalOpts);
         });
     }

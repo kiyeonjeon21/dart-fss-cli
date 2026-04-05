@@ -141,8 +141,7 @@ export function registerSchemaCommand(program: Command): void {
 
       const ep = REGISTRY_BY_CLI_NAME.get(endpoint);
       if (!ep) {
-        console.error(`Unknown endpoint: "${endpoint}". Run "dart-fss schema" to list all.`);
-        process.exit(1);
+        throw new Error(`Unknown endpoint: "${endpoint}". Run "dart-fss schema" to list all.`);
       }
 
       const schema = buildSchema(ep);

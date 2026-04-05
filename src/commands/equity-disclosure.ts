@@ -3,7 +3,7 @@ import { dartFetch } from '../client.js';
 import { getApiKey } from '../config.js';
 import { resolveCorpCode } from '../corp-code.js';
 import { parseJsonParams } from '../json-params.js';
-import { writeOutput } from '../output.js';
+import { writeOutput, writeDryRun } from '../output.js';
 import { REGISTRY_BY_GROUP } from '../registry.js';
 import type { DartCliOptions } from '../types.js';
 
@@ -39,11 +39,9 @@ export function registerEquityDisclosureCommands(program: Command): void {
           return;
         }
         const corpCode = await resolveCorpCode(opts.corp, apiKey);
-        const data = await dartFetch({
-          apiKey,
-          path: `/${ep.path}`,
-          params: { corp_code: corpCode },
-        });
+        const params = { corp_code: corpCode };
+        if (globalOpts.dryRun) { writeDryRun(`/${ep.path}`, params, globalOpts); return; }
+        const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
         writeOutput(data, globalOpts);
       });
   }
