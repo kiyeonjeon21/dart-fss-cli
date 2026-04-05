@@ -5,7 +5,7 @@
 ## 설치
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kiyeonjeon21/dart-cli/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kiyeonjeon21/dart-fss-cli/main/install.sh | bash
 ```
 
 또는 npm으로 직접 설치:

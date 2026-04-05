@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="kiyeonjeon21/dart-cli"
+REPO="kiyeonjeon21/dart-fss-cli"
 PACKAGE_NAME="dart-fss-cli"
 BIN_NAME="dart-fss"
 

@@ -9,7 +9,7 @@ Access all DART API endpoints from the command line.
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kiyeonjeon21/dart-cli/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kiyeonjeon21/dart-fss-cli/main/install.sh | bash
 ```
 
 Or via npm:
