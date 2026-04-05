@@ -26,9 +26,9 @@ if [ "$NODE_MAJOR" -lt 18 ]; then
   error "Node.js 18 이상이 필요합니다. (현재: $(node -v))"
 fi
 
-# ── Install from GitHub ──────────────────────────────────────────
+# ── Install from npm registry ────────────────────────────────────
 info "dart-fss-cli 설치 중..."
-npm install -g "github:${REPO}" 2>&1
+npm install -g "${PACKAGE_NAME}" 2>&1
 
 if command -v "$BIN_NAME" >/dev/null 2>&1; then
   ok "설치 완료! ($(${BIN_NAME} --version 2>/dev/null || echo 'v0.1.0'))"
