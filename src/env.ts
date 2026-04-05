@@ -1,9 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 let loaded = false;
 
-/** Load .env file from project root (searches upward from cwd) */
+/** Load .env file from project root (searches upward from cwd) and ~/.dart-fss/ */
 export function loadEnv(): void {
   if (loaded) return;
   loaded = true;
@@ -12,6 +13,7 @@ export function loadEnv(): void {
     process.cwd(),
     resolve(process.cwd(), '..'),
     resolve(import.meta.dirname, '..'),
+    join(homedir(), '.dart-fss'),
   ];
   for (const base of candidates) {
     const envPath = join(base, '.env');

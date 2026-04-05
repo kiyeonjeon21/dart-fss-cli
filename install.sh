@@ -62,18 +62,11 @@ else
   stty echo < /dev/tty 2>/dev/null
   echo ""
   if [ -n "$API_KEY" ]; then
-    SHELL_NAME=$(basename "$SHELL")
-    case "$SHELL_NAME" in
-      zsh)  RC_FILE="$HOME/.zshrc" ;;
-      bash) RC_FILE="$HOME/.bashrc" ;;
-      *)    RC_FILE="$HOME/.profile" ;;
-    esac
-
-    echo "" >> "$RC_FILE"
-    echo "export DART_API_KEY=$API_KEY" >> "$RC_FILE"
-    export DART_API_KEY="$API_KEY"
-    ok "API key saved to $RC_FILE"
-    info "Run 'source $RC_FILE' or open a new terminal to apply."
+    DART_DIR="$HOME/.dart-fss"
+    mkdir -p "$DART_DIR"
+    echo "DART_API_KEY=$API_KEY" > "$DART_DIR/.env"
+    chmod 600 "$DART_DIR/.env"
+    ok "API key saved to ~/.dart-fss/.env"
   else
     warn "Skipped. Set it later:"
     echo "  export DART_API_KEY=your_api_key_here"

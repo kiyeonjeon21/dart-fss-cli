@@ -1,6 +1,6 @@
 {
   "name": "dart-fss-cli",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "DART (금융감독원 전자공시) Open API CLI",
   "type": "module",
   "bin": {
