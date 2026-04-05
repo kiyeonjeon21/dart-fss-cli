@@ -7,6 +7,7 @@
 <meta name="description" content="Access 83 DART API endpoints from the terminal. Built for humans and AI agents.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.css">
 <style>
   /* ── Theme Variables ── */
   :root,
@@ -222,6 +223,10 @@
   [data-theme="light"] .terminal pre .key { color: #b47800; }
   [data-theme="light"] .terminal pre .val { color: #2060c0; }
 
+  /* ── Demo Video ── */
+  .demo-video { padding: 60px 0; border-bottom: 1px solid var(--border); }
+  .demo-video #demo-player { border-radius: 8px; overflow: hidden; }
+
   /* ── Agentic ── */
   .agentic { padding: 60px 0; border-bottom: 1px solid var(--border); }
   .agentic p {
@@ -364,6 +369,13 @@ npx dart-fss-cli lookup "삼성전자"</code>
   </div>
 </section>
 
+<section class="demo-video">
+  <div class="container">
+    <h2 class="section-title" data-i18n="demo-title">Demo</h2>
+    <div id="demo-player"></div>
+  </div>
+</section>
+
 <section class="agentic">
   <div class="container">
     <h2 class="section-title" data-i18n="agentic-title">Built for Agentic AI</h2>
@@ -415,6 +427,7 @@ const i18n = {
     'f6-label': 'Korean Names',
     'f6-desc': 'Type "삼성전자" or "네이버" directly. English names auto-resolved',
     'example-title': 'Quick Example',
+    'demo-title': 'Demo',
     'agentic-title': 'Built for Agentic AI',
     'agentic-p1': 'dart-fss-cli follows the <a href="https://justin.poehnelt.com/posts/rewrite-your-cli-for-ai-agents/">agentic CLI</a> philosophy — schema introspection, field masks, dry-run validation, and structured JSON errors so AI agents can discover and call APIs without prior knowledge.',
     'agentic-p2': 'Point Claude Code, Codex, or any AI agent at this CLI and ask a question in plain language. The agent reads <code>--help</code>, discovers the schema, and composes the right calls.',
@@ -437,6 +450,7 @@ const i18n = {
     'f6-label': '한글 회사명',
     'f6-desc': '"삼성전자", "네이버" 등 한글로 바로 검색. 영문 등록 회사도 자동 해소',
     'example-title': '사용 예시',
+    'demo-title': '데모',
     'agentic-title': 'Agentic AI를 위한 설계',
     'agentic-p1': 'dart-fss-cli는 <a href="https://justin.poehnelt.com/posts/rewrite-your-cli-for-ai-agents/">agentic CLI</a> 철학을 따릅니다 — 스키마 조회, 필드 마스크, dry-run 검증, 구조화된 JSON 에러로 AI 에이전트가 사전 지식 없이 API를 탐색하고 호출할 수 있습니다.',
     'agentic-p2': 'Claude Code, Codex 등 AI 에이전트에게 자연어로 질문하세요. 에이전트가 <code>--help</code>를 읽고, 스키마를 탐색하고, 올바른 호출을 조합합니다.',
@@ -502,6 +516,15 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
   });
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.js"></script>
+<script>
+AsciinemaPlayer.create('demo.cast', document.getElementById('demo-player'), {
+  theme: 'monokai',
+  fit: 'width',
+  idleTimeLimit: 3,
+  speed: 1.5,
 });
 </script>
 
