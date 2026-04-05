@@ -1,0 +1,46 @@
+{
+  "name": "dart-fss-cli",
+  "version": "0.1.0",
+  "description": "DART (금융감독원 전자공시) Open API CLI",
+  "type": "module",
+  "bin": {
+    "dart-fss": "./dist/bin.js"
+  },
+  "main": "./dist/cli.js",
+  "types": "./dist/cli.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/cli.js",
+      "types": "./dist/cli.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/bin.ts",
+    "registry": "tsx src/scripts/generate-registry.ts"
+  },
+  "keywords": [
+    "dart",
+    "fss",
+    "opendart",
+    "korea",
+    "financial",
+    "disclosure",
+    "cli"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.0.0",
+    "fast-xml-parser": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0",
+    "yaml": "^2.7.0"
+  }
+}
