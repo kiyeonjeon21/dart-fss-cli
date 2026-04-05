@@ -33,8 +33,7 @@ export async function dartFetch(opts: FetchOptions): Promise<Record<string, unkn
 
   if (contentType.includes('application/json')) {
     const data = await res.json() as Record<string, unknown>;
-    checkDartStatus(data as { status?: string; message?: string });
-    return data;
+    return checkDartStatus(data);
   }
 
   throw new Error(`Unexpected content-type: ${contentType}. Binary endpoints should use dartFetchBinary().`);

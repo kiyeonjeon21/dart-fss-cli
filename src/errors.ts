@@ -42,8 +42,14 @@ export function formatErrorJson(err: unknown): string {
   return JSON.stringify({ error: true, code: 'CLI_ERROR', message });
 }
 
-export function checkDartStatus(data: { status?: string; message?: string }): void {
-  if (data.status && data.status !== '000') {
-    throw new DartApiError(data.status, data.message || '');
+export function checkDartStatus(data: Record<string, unknown>): Record<string, unknown> {
+  const status = data.status as string | undefined;
+  if (status && status !== '000') {
+    // "No data found" is not an error — return empty list with status 000
+    if (status === '013') {
+      return { status: '000', message: 'No data found', list: [] };
+    }
+    throw new DartApiError(status, (data.message as string) || '');
   }
+  return data;
 }
