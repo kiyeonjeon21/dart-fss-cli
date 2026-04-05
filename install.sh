@@ -34,7 +34,7 @@ if command -v "$BIN_NAME" >/dev/null 2>&1; then
   ok "설치 완료! ($(${BIN_NAME} --version 2>/dev/null || echo 'v0.1.0'))"
 else
   # npm global bin이 PATH에 없는 경우
-  NPM_BIN=$(npm bin -g 2>/dev/null || npm prefix -g)/bin
+  NPM_BIN="$(npm prefix -g)/bin"
   warn "${BIN_NAME}이 PATH에 없습니다."
   warn "다음을 셸 설정에 추가하세요:"
   echo ""
