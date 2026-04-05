@@ -19,7 +19,12 @@ export function registerPeriodicReportCommands(program: Command): void {
       'DS002: Periodic report key information — 28 APIs extracting data from annual/quarterly reports.\n' +
       'Covers: capital changes, dividends, treasury stock, shareholders, executives, employees,\n' +
       'compensation, debt securities, audit info, outside directors, investments, fund usage.\n' +
-      'Data available from 2015 onward.'
+      'Data available from 2015 onward.\n\n' +
+      'All subcommands require: --corp <name> --year <YYYY> --quarter <q1|half|q3|annual>\n\n' +
+      'Examples:\n' +
+      '  dart-fss report employee --corp "삼성전자" --year 2025 --quarter annual --pretty\n' +
+      '  dart-fss report dividend --corp "카카오" --year 2025 --quarter annual\n' +
+      '  dart-fss report exec-pay-individual --corp "네이버" --year 2025 --quarter annual --fields "nm,ofcps,mendng_totamt"'
     );
 
   const endpoints = (REGISTRY_BY_GROUP.get('report') || []).filter(

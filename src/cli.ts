@@ -21,7 +21,7 @@ export function createDartProgram(): Command {
       'Output is JSON by default (compact single-line). Use --pretty for formatted output.\n' +
       'Rate limit: approximately 20,000 requests per day per API key.'
     )
-    .version('0.4.7')
+    .version('0.4.8')
     .option('--api-key <key>', 'DART API key (default: DART_API_KEY env). Get one at https://opendart.fss.or.kr')
     .option('--pretty', 'Pretty-print JSON output (default: compact single-line JSON)')
     .option('--output <file>', 'Save result to file instead of stdout')

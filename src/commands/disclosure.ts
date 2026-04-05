@@ -15,9 +15,10 @@ export function registerDisclosureCommands(program: Command): void {
   const group = program
     .command('disclosure')
     .description(
-      'DS001: Disclosure info — search filings, company overview, original documents, corp codes.\n' +
-      'Use "disclosure list" to search filings by company/date/type.\n' +
-      'Use "disclosure company" to get company profile (CEO, address, industry code).'
+      'DS001: Disclosure info — search filings, company overview, original documents, corp codes.\n\n' +
+      'Examples:\n' +
+      '  dart-fss disclosure company --corp "삼성전자" --pretty\n' +
+      '  dart-fss disclosure list --corp "카카오" --from 20250101 --to 20251231'
     );
 
   group

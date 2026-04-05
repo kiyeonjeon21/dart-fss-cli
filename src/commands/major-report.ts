@@ -19,7 +19,11 @@ export function registerMajorReportCommands(program: Command): void {
       'Covers: capital increases/reductions, bond issuances (convertible, exchangeable, warrant),\n' +
       'treasury stock, M&A (mergers, splits, business/asset transfers), lawsuits,\n' +
       'overseas listings, defaults, business suspension, rehabilitation.\n' +
-      'Data available from 2015 onward. Requires date range.'
+      'Data available from 2015 onward.\n\n' +
+      'All subcommands require: --corp <name> --from <YYYYMMDD> --to <YYYYMMDD>\n\n' +
+      'Examples:\n' +
+      '  dart-fss major lawsuit --corp "삼성전자" --from 20230101 --to 20251231 --pretty\n' +
+      '  dart-fss major convertible-bond --corp "카카오" --from 20250101 --to 20251231'
     );
 
   const endpoints = (REGISTRY_BY_GROUP.get('major') || []).filter(

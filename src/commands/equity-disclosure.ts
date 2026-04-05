@@ -15,9 +15,11 @@ export function registerEquityDisclosureCommands(program: Command): void {
   const group = program
     .command('equity')
     .description(
-      'DS004: Equity disclosure — major shareholding reports and executive/major shareholder ownership.\n' +
-      'Use "equity major-stock" for large shareholding (5%+ ownership) status reports.\n' +
-      'Use "equity executive-stock" for executive and major shareholder ownership reports.'
+      'DS004: Equity disclosure — major shareholding reports and executive/major shareholder ownership.\n\n' +
+      'All subcommands require: --corp <name>\n\n' +
+      'Examples:\n' +
+      '  dart-fss equity major-stock --corp "삼성전자" --pretty\n' +
+      '  dart-fss equity executive-stock --corp "카카오"'
     );
 
   const endpoints = (REGISTRY_BY_GROUP.get('equity') || []).filter(

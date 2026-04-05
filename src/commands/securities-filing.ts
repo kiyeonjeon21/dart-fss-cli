@@ -18,7 +18,10 @@ export function registerSecuritiesFilingCommands(program: Command): void {
       'DS006: Securities registration statements — 6 APIs for securities filings.\n' +
       'Covers: equity securities, debt securities, depository receipts,\n' +
       'mergers, comprehensive stock exchange/transfer, and splits.\n' +
-      'Data available from 2015 onward. Requires date range.'
+      'Data available from 2015 onward.\n\n' +
+      'All subcommands require: --corp <name> --from <YYYYMMDD> --to <YYYYMMDD>\n\n' +
+      'Examples:\n' +
+      '  dart-fss securities equity-securities --corp "삼성전자" --from 20230101 --to 20251231'
     );
 
   const endpoints = (REGISTRY_BY_GROUP.get('securities') || []).filter(

@@ -18,7 +18,11 @@ export function registerFinancialCommands(program: Command): void {
     .description(
       'DS003: Financial data — statements, indices, and XBRL for listed companies (KOSPI/KOSDAQ).\n' +
       'Includes key accounts (assets, liabilities, revenue), full financial statements,\n' +
-      'financial indices (profitability, stability, growth, activity), and XBRL taxonomy.'
+      'financial indices (profitability, stability, growth, activity), and XBRL taxonomy.\n\n' +
+      'Most subcommands require: --corp <name> --year <YYYY> --quarter <q1|half|q3|annual>\n\n' +
+      'Examples:\n' +
+      '  dart-fss financial single-account --corp "삼성전자" --year 2025 --quarter annual --pretty\n' +
+      '  dart-fss financial full-statement --corp "SK하이닉스" --year 2025 --quarter annual --fs-div CFS'
     );
 
   const endpoints = REGISTRY_BY_GROUP.get('financial') || [];
