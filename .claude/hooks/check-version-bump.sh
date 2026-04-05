@@ -1,6 +1,7 @@
 #!/bin/bash
 # PreToolUse hook: block git push if version in package.json hasn't been bumped
 # compared to the remote branch.
+# Skips check if only docs/config files changed (no src/ or package.json).
 
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command')
@@ -18,9 +19,16 @@ if [ ! -f "$PKG" ]; then
 fi
 
 LOCAL_VERSION=$(jq -r '.version' "$PKG")
+BRANCH=$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+# Skip if only docs/config changed (no code changes)
+CHANGED_FILES=$(git -C "$PROJECT_DIR" diff --name-only "origin/${BRANCH}..HEAD" 2>/dev/null)
+HAS_CODE_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^(src/|package\.json|tsup\.config)' || true)
+if [ -z "$HAS_CODE_CHANGES" ]; then
+  exit 0
+fi
 
 # Get remote version from the branch we're pushing to
-BRANCH=$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
 REMOTE_VERSION=$(git -C "$PROJECT_DIR" show "origin/${BRANCH}:package.json" 2>/dev/null | jq -r '.version' 2>/dev/null)
 
 if [ -z "$REMOTE_VERSION" ] || [ "$REMOTE_VERSION" = "null" ]; then
