@@ -57,7 +57,7 @@ if [ -n "${DART_API_KEY:-}" ]; then
   ok "DART_API_KEY is already set."
 else
   printf "${CYAN}▸${NC} Enter your DART API key (or press Enter to skip): "
-  read -r API_KEY
+  read -r API_KEY < /dev/tty
   if [ -n "$API_KEY" ]; then
     SHELL_NAME=$(basename "$SHELL")
     case "$SHELL_NAME" in
