@@ -10,7 +10,11 @@ Works great for humans and even better when you let AI agents (Claude Code, etc.
 ## 0. Install & Setup
 
 ```bash
+# Run directly (no install needed)
 npx dart-fss-cli --help
+
+# Or install globally
+curl -fsSL https://raw.githubusercontent.com/kiyeonjeon21/dart-fss-cli/main/install.sh | bash
 
 # Get an API key at https://opendart.fss.or.kr
 export DART_API_KEY=your_key
