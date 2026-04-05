@@ -65,16 +65,16 @@ function parseCorpCodeXml(xml: string): CorpCodeEntry[] {
 }
 
 export async function refreshCorpCodeCache(apiKey: string): Promise<CorpCodeEntry[]> {
-  console.error('corp_code 캐시를 갱신합니다... (ZIP 다운로드 중)');
+  console.error('Refreshing corp_code cache... (downloading ZIP)');
   const zipData = await dartFetchBinary({ apiKey, path: '/corpCode.xml' });
-  console.error(`ZIP 다운로드 완료 (${(zipData.byteLength / 1024 / 1024).toFixed(1)} MB)`);
+  console.error(`ZIP downloaded (${(zipData.byteLength / 1024 / 1024).toFixed(1)} MB)`);
 
   const xml = extractXmlFromZip(zipData);
   const entries = parseCorpCodeXml(xml);
 
   ensureCacheDir();
   writeFileSync(CORP_CODE_CACHE_PATH, JSON.stringify(entries), 'utf-8');
-  console.error(`캐시 저장 완료: ${entries.length}개 기업`);
+  console.error(`Cache saved: ${entries.length} corporations`);
   return entries;
 }
 
@@ -98,15 +98,15 @@ export async function resolveCorpCode(nameOrCode: string, apiKey: string): Promi
   const partial = entries.filter((e) => e.corp_name.includes(term));
   if (partial.length === 1) return partial[0].corp_code;
   if (partial.length > 1) {
-    console.error(`"${term}" 검색 결과가 여러 개입니다:`);
+    console.error(`Multiple matches for "${term}":`);
     partial.slice(0, 10).forEach((e) => {
-      console.error(`  ${e.corp_code} — ${e.corp_name} (${e.stock_code || '비상장'})`);
+      console.error(`  ${e.corp_code} — ${e.corp_name} (${e.stock_code || 'unlisted'})`);
     });
-    if (partial.length > 10) console.error(`  ... 외 ${partial.length - 10}건`);
+    if (partial.length > 10) console.error(`  ... and ${partial.length - 10} more`);
     process.exit(1);
   }
 
-  console.error(`"${term}"에 해당하는 기업을 찾을 수 없습니다.`);
+  console.error(`No corporation found for "${term}".`);
   process.exit(1);
 }
 

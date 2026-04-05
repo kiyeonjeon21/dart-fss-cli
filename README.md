@@ -1,84 +1,85 @@
 # dart-fss-cli
 
-DART (금융감독원 전자공시시스템) Open API CLI
+CLI for the Korea FSS [DART Open API](https://opendart.fss.or.kr) (Electronic Disclosure System).
 
-금감원 [DART Open API](https://opendart.fss.or.kr)의 전체 엔드포인트를 커맨드라인에서 사용할 수 있는 CLI 도구입니다.
+Access all DART API endpoints from the command line.
 
-## 설치
+**[한국어 가이드 (Korean Guide)](docs/ko.md)**
+
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kiyeonjeon21/dart-cli/main/install.sh | bash
+```
+
+Or via npm:
 
 ```bash
 npm install -g dart-fss-cli
 ```
 
-또는 npx로 바로 실행:
+Or run directly with npx:
 
 ```bash
 npx dart-fss-cli --help
 ```
 
-## 사전 준비
+## Setup
 
-[DART Open API](https://opendart.fss.or.kr)에서 API 키를 발급받으세요.
+Get an API key from [DART Open API](https://opendart.fss.or.kr).
 
 ```bash
-# 환경변수 설정
 export DART_API_KEY=your_api_key_here
-
-# 또는 .env 파일 생성
-echo "DART_API_KEY=your_api_key_here" > .env
 ```
 
-## 사용법
+## Usage
 
 ```bash
-# 기업 개황 조회
+# Company overview
 dart-fss disclosure company --corp "삼성전자" --pretty
 
-# 공시 검색
+# Search disclosures
 dart-fss disclosure list --corp "카카오" --from 20240101 --to 20241231
 
-# 직원 현황
+# Employee status
 dart-fss report employee --corp "삼성전자" --year 2024 --quarter annual
 
-# 단일회사 주요계정 (재무정보)
+# Financial statements
 dart-fss financial single-account --corp "카카오" --year 2024 --quarter annual --pretty
 
-# 대량보유 상황보고
+# Major holdings
 dart-fss equity major-stock --corp "삼성전자" --pretty
 
-# 유상증자 결정
-dart-fss major paid-increase --corp "삼성전자" --from 20230101 --to 20241231
-
-# 회사명으로 고유번호 검색
+# Look up corp_code by name
 dart-fss lookup "네이버"
 
-# 등록된 전체 엔드포인트 목록
+# List all endpoints
 dart-fss endpoints
 
-# 결과를 파일로 저장
+# Save output to file
 dart-fss disclosure company --corp "삼성전자" --output result.json
 ```
 
-## 커맨드 그룹
+## Command Groups
 
-| 커맨드 | 설명 | API 수 |
-|--------|------|--------|
-| `disclosure` | 공시정보 (공시 검색, 기업 개황 등) | 4 |
-| `report` | 정기보고서 (직원현황, 임원현황, 배당 등) | 28 |
-| `financial` | 재무정보 (재무제표, 재무지표, XBRL) | 7 |
-| `equity` | 지분공시 (대량보유, 임원 주요주주) | 2 |
-| `major` | 주요사항보고서 (증자/감자, M&A 등) | 36 |
-| `securities` | 증권신고서 (지분증권, 채무증권 등) | 6 |
+| Command | Description | APIs |
+|---------|-------------|------|
+| `disclosure` | Disclosures (search, company overview, documents) | 4 |
+| `report` | Periodic reports (employees, executives, dividends, etc.) | 28 |
+| `financial` | Financial data (statements, indices, XBRL) | 7 |
+| `equity` | Equity disclosure (major holdings, executive ownership) | 2 |
+| `major` | Major event reports (capital changes, bonds, M&A, etc.) | 36 |
+| `securities` | Securities registration (equity, debt, mergers, etc.) | 6 |
 
-## 글로벌 옵션
+## Global Options
 
-| 옵션 | 설명 |
-|------|------|
-| `--api-key <key>` | DART API 인증키 (기본: `DART_API_KEY` 환경변수) |
-| `--pretty` | JSON 출력을 보기 좋게 포맷팅 |
-| `--output <file>` | 결과를 파일로 저장 |
+| Option | Description |
+|--------|-------------|
+| `--api-key <key>` | DART API key (default: `DART_API_KEY` env) |
+| `--pretty` | Pretty-print JSON output |
+| `--output <file>` | Save result to file |
 
-## 프로그래밍 방식 사용
+## Programmatic Usage
 
 ```typescript
 import { createDartProgram } from 'dart-fss-cli';

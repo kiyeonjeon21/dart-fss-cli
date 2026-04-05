@@ -13,7 +13,7 @@ export const CORP_CODE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 export function getApiKey(optionKey?: string): string {
   const key = optionKey || process.env.DART_API_KEY;
   if (!key) {
-    console.error('Error: DART_API_KEY 환경변수를 설정하거나 --api-key 옵션을 사용하세요.');
+    console.error('Error: Set the DART_API_KEY environment variable or use the --api-key option.');
     process.exit(1);
   }
   return key;

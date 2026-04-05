@@ -70,7 +70,7 @@ export async function dartFetchBinary(opts: FetchOptions): Promise<ArrayBuffer> 
     } catch {
       // Not JSON
     }
-    throw new Error(`DART API 오류: 예상한 ZIP 파일이 아닙니다. 응답: ${text.slice(0, 200)}`);
+    throw new Error(`DART API error: expected ZIP file but got: ${text.slice(0, 200)}`);
   }
 
   return buf;

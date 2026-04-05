@@ -13,7 +13,7 @@ function getGlobalOpts(cmd: Command): DartCliOptions {
 export function registerSecuritiesFilingCommands(program: Command): void {
   const group = program
     .command('securities')
-    .description('DS006: 증권신고서 (지분증권, 채무증권, 합병, 분할 등 6개 API)');
+    .description('DS006: Securities registration (equity, debt, mergers, etc. 6 APIs)');
 
   const endpoints = (REGISTRY_BY_GROUP.get('securities') || []).filter(
     (ep) => ep.pattern === 'dateRange',
@@ -23,9 +23,9 @@ export function registerSecuritiesFilingCommands(program: Command): void {
     group
       .command(ep.cliName)
       .description(ep.summary)
-      .requiredOption('--corp <name-or-code>', '회사명 또는 고유번호')
-      .requiredOption('--from <YYYYMMDD>', '검색시작 접수일자')
-      .requiredOption('--to <YYYYMMDD>', '검색종료 접수일자')
+      .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
+      .requiredOption('--from <YYYYMMDD>', 'Start date (filing date)')
+      .requiredOption('--to <YYYYMMDD>', 'End date (filing date)')
       .action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);

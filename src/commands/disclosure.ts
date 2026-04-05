@@ -13,18 +13,18 @@ function getGlobalOpts(cmd: Command): DartCliOptions {
 export function registerDisclosureCommands(program: Command): void {
   const group = program
     .command('disclosure')
-    .description('DS001: 공시정보 (공시 검색, 기업 개황, 공시서류, 고유번호)');
+    .description('DS001: Disclosure (search, company overview, documents, corp codes)');
 
   group
     .command('list')
-    .description('공시 검색')
-    .option('--corp <name-or-code>', '회사명 또는 고유번호')
-    .option('--from <YYYYMMDD>', '시작일')
-    .option('--to <YYYYMMDD>', '종료일')
-    .option('--type <code>', '공시유형 (A~J)')
-    .option('--corp-cls <cls>', '법인구분 (Y/K/N/E)')
-    .option('--page <n>', '페이지 번호', '1')
-    .option('--count <n>', '페이지당 건수', '10')
+    .description('Search disclosures')
+    .option('--corp <name-or-code>', 'Company name or corp_code')
+    .option('--from <YYYYMMDD>', 'Start date')
+    .option('--to <YYYYMMDD>', 'End date')
+    .option('--type <code>', 'Disclosure type (A~J)')
+    .option('--corp-cls <cls>', 'Corp class (Y/K/N/E)')
+    .option('--page <n>', 'Page number', '1')
+    .option('--count <n>', 'Items per page', '10')
     .action(async (opts) => {
       const globalOpts = getGlobalOpts(group);
       const apiKey = getApiKey(globalOpts.apiKey);
@@ -42,8 +42,8 @@ export function registerDisclosureCommands(program: Command): void {
 
   group
     .command('company')
-    .description('기업 개황')
-    .requiredOption('--corp <name-or-code>', '회사명 또는 고유번호')
+    .description('Company overview')
+    .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
     .action(async (opts) => {
       const globalOpts = getGlobalOpts(group);
       const apiKey = getApiKey(globalOpts.apiKey);
@@ -59,7 +59,7 @@ export function registerDisclosureCommands(program: Command): void {
       group
         .command(ep.cliName)
         .description(ep.summary)
-        .requiredOption('--corp <name-or-code>', '회사명 또는 고유번호')
+        .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
         .action(async (opts) => {
           const globalOpts = getGlobalOpts(group);
           const apiKey = getApiKey(globalOpts.apiKey);
@@ -74,13 +74,13 @@ export function registerDisclosureCommands(program: Command): void {
 export function registerLookupCommand(program: Command): void {
   program
     .command('lookup <term>')
-    .description('회사명으로 corp_code 조회')
+    .description('Look up corp_code by company name')
     .action(async (term: string) => {
       const globalOpts = program.opts() as DartCliOptions;
       const apiKey = getApiKey(globalOpts.apiKey);
       const results = await lookupCorpCode(term, apiKey);
       if (results.length === 0) {
-        console.error(`"${term}"에 해당하는 기업을 찾을 수 없습니다.`);
+        console.error(`No corporation found for "${term}".`);
         process.exit(1);
       }
       writeOutput(results, globalOpts);
@@ -90,15 +90,15 @@ export function registerLookupCommand(program: Command): void {
 export function registerCorpCacheCommand(program: Command): void {
   const cache = program
     .command('corp-cache')
-    .description('corp_code 캐시 관리');
+    .description('Manage corp_code cache');
 
   cache
     .command('refresh')
-    .description('corp_code 캐시 강제 갱신')
+    .description('Force refresh corp_code cache')
     .action(async () => {
       const globalOpts = program.opts() as DartCliOptions;
       const apiKey = getApiKey(globalOpts.apiKey);
       const entries = await refreshCorpCodeCache(apiKey);
-      console.error(`갱신 완료: ${entries.length}개 기업`);
+      console.error(`Refreshed: ${entries.length} corporations`);
     });
 }

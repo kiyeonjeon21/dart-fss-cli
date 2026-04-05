@@ -16,7 +16,7 @@ export function writeOutput(data: unknown, opts: GlobalOutputOptions): void {
   const text = formatOutput(data, opts);
   if (opts.output) {
     writeFileSync(opts.output, text, 'utf-8');
-    console.error(`결과를 ${opts.output}에 저장했습니다.`);
+    console.error(`Saved to ${opts.output}`);
   } else {
     console.log(text);
   }

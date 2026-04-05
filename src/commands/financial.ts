@@ -14,7 +14,7 @@ function getGlobalOpts(cmd: Command): DartCliOptions {
 export function registerFinancialCommands(program: Command): void {
   const group = program
     .command('financial')
-    .description('DS003: 재무정보 (재무제표, 재무지표, XBRL)');
+    .description('DS003: Financial statements, indices & XBRL');
 
   const endpoints = REGISTRY_BY_GROUP.get('financial') || [];
 
@@ -23,13 +23,13 @@ export function registerFinancialCommands(program: Command): void {
 
     if (ep.pattern === 'periodic') {
       cmd
-        .requiredOption('--corp <name-or-code>', '회사명 또는 고유번호')
-        .requiredOption('--year <YYYY>', '사업연도')
-        .requiredOption('--quarter <q1|half|q3|annual>', '분기');
+        .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
+        .requiredOption('--year <YYYY>', 'Business year')
+        .requiredOption('--quarter <q1|half|q3|annual>', 'Report quarter');
 
       const needsIdxClCode = ep.cliName === 'single-index';
       if (needsIdxClCode) {
-        cmd.requiredOption('--idx-cl-code <code>', '지표분류코드 (profitability/stability/growth/activity 또는 M210000~M240000)');
+        cmd.requiredOption('--idx-cl-code <code>', 'Index classification code (profitability/stability/growth/activity or M210000~M240000)');
       }
 
       if (ep.extraParams) {
@@ -49,7 +49,7 @@ export function registerFinancialCommands(program: Command): void {
         const corpCode = await resolveCorpCode(opts.corp, apiKey);
         const reprtCode = REPRT_CODE_MAP[opts.quarter];
         if (!reprtCode) {
-          console.error(`유효하지 않은 분기: ${opts.quarter}`);
+          console.error(`Invalid quarter: ${opts.quarter}`);
           process.exit(1);
         }
         const params: Record<string, string> = {
@@ -73,12 +73,12 @@ export function registerFinancialCommands(program: Command): void {
       });
     } else if (ep.cliName === 'multi-account' || ep.cliName === 'multi-index') {
       cmd
-        .requiredOption('--corp <codes>', '고유번호 (쉼표 구분, 최대 100개)')
-        .requiredOption('--year <YYYY>', '사업연도')
-        .requiredOption('--quarter <q1|half|q3|annual>', '분기');
+        .requiredOption('--corp <codes>', 'Corp codes (comma-separated, max 100)')
+        .requiredOption('--year <YYYY>', 'Business year')
+        .requiredOption('--quarter <q1|half|q3|annual>', 'Report quarter');
 
       if (ep.cliName === 'multi-index') {
-        cmd.requiredOption('--idx-cl-code <code>', '지표분류코드');
+        cmd.requiredOption('--idx-cl-code <code>', 'Index classification code');
       }
 
       cmd.action(async (opts) => {
@@ -86,7 +86,7 @@ export function registerFinancialCommands(program: Command): void {
         const apiKey = getApiKey(globalOpts.apiKey);
         const reprtCode = REPRT_CODE_MAP[opts.quarter];
         if (!reprtCode) {
-          console.error(`유효하지 않은 분기: ${opts.quarter}`);
+          console.error(`Invalid quarter: ${opts.quarter}`);
           process.exit(1);
         }
         const params: Record<string, string> = {
@@ -102,7 +102,7 @@ export function registerFinancialCommands(program: Command): void {
       });
     } else if (ep.cliName === 'taxonomy') {
       cmd
-        .requiredOption('--sj-div <code>', '재무제표구분 (BS1, IS1, CIS1, CF1, CF2, SCE 등)')
+        .requiredOption('--sj-div <code>', 'Statement type (BS1, IS1, CIS1, CF1, CF2, SCE, etc.)')
         .action(async (opts) => {
           const globalOpts = getGlobalOpts(group);
           const apiKey = getApiKey(globalOpts.apiKey);

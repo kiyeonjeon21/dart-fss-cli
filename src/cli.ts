@@ -12,11 +12,11 @@ export function createDartProgram(): Command {
 
   program
     .name('dart-fss')
-    .description('DART Open API CLI — 금융감독원 전자공시시스템')
+    .description('DART Open API CLI — Korea FSS Electronic Disclosure')
     .version('0.1.0')
-    .option('--api-key <key>', 'DART API 인증키 (기본: DART_API_KEY 환경변수)')
-    .option('--pretty', 'JSON 예쁘게 출력')
-    .option('--output <file>', '결과를 파일로 저장');
+    .option('--api-key <key>', 'DART API key (default: DART_API_KEY env)')
+    .option('--pretty', 'Pretty-print JSON output')
+    .option('--output <file>', 'Save result to file');
 
   registerDisclosureCommands(program);
   registerPeriodicReportCommands(program);
@@ -30,14 +30,14 @@ export function createDartProgram(): Command {
 
   program
     .command('endpoints')
-    .description('등록된 전체 API 엔드포인트 목록')
+    .description('List all registered API endpoints')
     .option('--group <group>', 'disclosure, report, financial, equity, major, securities')
     .action((opts) => {
       let endpoints = REGISTRY;
       if (opts.group) {
         endpoints = endpoints.filter((ep) => ep.group === opts.group);
       }
-      console.log(`총 ${endpoints.length}개 엔드포인트:\n`);
+      console.log(`${endpoints.length} endpoints:\n`);
       const groups = new Map<string, typeof endpoints>();
       for (const ep of endpoints) {
         const g = groups.get(ep.group) || [];
@@ -45,7 +45,7 @@ export function createDartProgram(): Command {
         groups.set(ep.group, g);
       }
       for (const [groupName, eps] of groups) {
-        console.log(`[${groupName}] (${eps.length}개)`);
+        console.log(`[${groupName}] (${eps.length})`);
         for (const ep of eps) {
           console.log(`  ${ep.cliName.padEnd(35)} ${ep.pattern.padEnd(10)} ${ep.summary}`);
         }

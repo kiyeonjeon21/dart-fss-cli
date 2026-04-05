@@ -14,7 +14,7 @@ function getGlobalOpts(cmd: Command): DartCliOptions {
 export function registerPeriodicReportCommands(program: Command): void {
   const group = program
     .command('report')
-    .description('DS002: 정기보고서 주요정보 (28개 API)');
+    .description('DS002: Periodic reports (28 APIs)');
 
   const endpoints = (REGISTRY_BY_GROUP.get('report') || []).filter(
     (ep) => ep.pattern === 'periodic',
@@ -24,16 +24,16 @@ export function registerPeriodicReportCommands(program: Command): void {
     group
       .command(ep.cliName)
       .description(ep.summary)
-      .requiredOption('--corp <name-or-code>', '회사명 또는 고유번호')
-      .requiredOption('--year <YYYY>', '사업연도')
-      .requiredOption('--quarter <q1|half|q3|annual>', '분기')
+      .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
+      .requiredOption('--year <YYYY>', 'Business year')
+      .requiredOption('--quarter <q1|half|q3|annual>', 'Report quarter')
       .action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);
         const corpCode = await resolveCorpCode(opts.corp, apiKey);
         const reprtCode = REPRT_CODE_MAP[opts.quarter];
         if (!reprtCode) {
-          console.error(`유효하지 않은 분기: ${opts.quarter} (q1, half, q3, annual 중 하나)`);
+          console.error(`Invalid quarter: ${opts.quarter} (must be one of: q1, half, q3, annual)`);
           process.exit(1);
         }
         const data = await dartFetch({

@@ -13,7 +13,7 @@ function getGlobalOpts(cmd: Command): DartCliOptions {
 export function registerEquityDisclosureCommands(program: Command): void {
   const group = program
     .command('equity')
-    .description('DS004: 지분공시 (대량보유, 임원·주요주주 소유보고)');
+    .description('DS004: Equity disclosure (major holdings, executive ownership)');
 
   const endpoints = (REGISTRY_BY_GROUP.get('equity') || []).filter(
     (ep) => ep.pattern === 'corpOnly',
@@ -23,7 +23,7 @@ export function registerEquityDisclosureCommands(program: Command): void {
     group
       .command(ep.cliName)
       .description(ep.summary)
-      .requiredOption('--corp <name-or-code>', '회사명 또는 고유번호')
+      .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
       .action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);
