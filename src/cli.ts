@@ -5,6 +5,7 @@ import { registerFinancialCommands } from './commands/financial.js';
 import { registerEquityDisclosureCommands } from './commands/equity-disclosure.js';
 import { registerMajorReportCommands } from './commands/major-report.js';
 import { registerSecuritiesFilingCommands } from './commands/securities-filing.js';
+import { registerSchemaCommand } from './commands/schema.js';
 import { REGISTRY } from './registry.js';
 
 export function createDartProgram(): Command {
@@ -12,11 +13,19 @@ export function createDartProgram(): Command {
 
   program
     .name('dart-fss')
-    .description('DART Open API CLI — Korea FSS Electronic Disclosure')
-    .version('0.2.0')
-    .option('--api-key <key>', 'DART API key (default: DART_API_KEY env)')
-    .option('--pretty', 'Pretty-print JSON output')
-    .option('--output <file>', 'Save result to file');
+    .description(
+      'DART Open API CLI — access Korea Financial Supervisory Service (FSS) electronic disclosure system.\n' +
+      'Provides 83 API endpoints for company filings, financial statements, equity disclosures, and more.\n' +
+      'Authentication: set DART_API_KEY env var or pass --api-key. Get a key at https://opendart.fss.or.kr\n' +
+      'Companies are identified by 8-digit corp_code or company name. Use "dart-fss lookup <name>" to find corp_code.\n' +
+      'Output is JSON by default (compact single-line). Use --pretty for formatted output.\n' +
+      'Rate limit: approximately 20,000 requests per day per API key.'
+    )
+    .version('0.3.0')
+    .option('--api-key <key>', 'DART API key (default: DART_API_KEY env). Get one at https://opendart.fss.or.kr')
+    .option('--pretty', 'Pretty-print JSON output (default: compact single-line JSON)')
+    .option('--output <file>', 'Save result to file instead of stdout')
+    .option('--json <params>', 'Pass raw API parameters as JSON string, bypassing flag parsing');
 
   registerDisclosureCommands(program);
   registerPeriodicReportCommands(program);
@@ -27,6 +36,7 @@ export function createDartProgram(): Command {
 
   registerLookupCommand(program);
   registerCorpCacheCommand(program);
+  registerSchemaCommand(program);
 
   program
     .command('endpoints')

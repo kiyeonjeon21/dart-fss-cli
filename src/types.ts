@@ -36,6 +36,7 @@ export interface CorpCodeEntry {
 
 export interface DartCliOptions extends GlobalOutputOptions {
   apiKey?: string;
+  json?: string;
 }
 
 export const REPRT_CODE_MAP: Record<string, string> = {

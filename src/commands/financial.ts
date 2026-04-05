@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { dartFetch } from '../client.js';
 import { getApiKey } from '../config.js';
 import { resolveCorpCode } from '../corp-code.js';
+import { parseJsonParams } from '../json-params.js';
 import { writeOutput } from '../output.js';
 import { REGISTRY_BY_GROUP } from '../registry.js';
 import { REPRT_CODE_MAP, IDX_CL_CODE_MAP } from '../types.js';
@@ -14,7 +15,11 @@ function getGlobalOpts(cmd: Command): DartCliOptions {
 export function registerFinancialCommands(program: Command): void {
   const group = program
     .command('financial')
-    .description('DS003: Financial statements, indices & XBRL');
+    .description(
+      'DS003: Financial data — statements, indices, and XBRL for listed companies (KOSPI/KOSDAQ).\n' +
+      'Includes key accounts (assets, liabilities, revenue), full financial statements,\n' +
+      'financial indices (profitability, stability, growth, activity), and XBRL taxonomy.'
+    );
 
   const endpoints = REGISTRY_BY_GROUP.get('financial') || [];
 
@@ -23,13 +28,13 @@ export function registerFinancialCommands(program: Command): void {
 
     if (ep.pattern === 'periodic') {
       cmd
-        .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
-        .requiredOption('--year <YYYY>', 'Business year')
-        .requiredOption('--quarter <q1|half|q3|annual>', 'Report quarter');
+        .requiredOption('--corp <name-or-code>', 'Company name (e.g. "삼성전자") or 8-digit corp_code')
+        .requiredOption('--year <YYYY>', 'Business year in YYYY format (e.g. 2024). Data from 2015 onward')
+        .requiredOption('--quarter <q1|half|q3|annual>', 'Report quarter: q1 (Q1), half (semi-annual), q3 (Q3), annual (full year)');
 
       const needsIdxClCode = ep.cliName === 'single-index';
       if (needsIdxClCode) {
-        cmd.requiredOption('--idx-cl-code <code>', 'Index classification code (profitability/stability/growth/activity or M210000~M240000)');
+        cmd.requiredOption('--idx-cl-code <code>', 'Index classification: profitability (M210000), stability (M220000), growth (M230000), activity (M240000). Accepts aliases or raw codes');
       }
 
       if (ep.extraParams) {
@@ -46,6 +51,12 @@ export function registerFinancialCommands(program: Command): void {
       cmd.action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);
+        if (globalOpts.json) {
+          const params = parseJsonParams(globalOpts.json);
+          const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
+          writeOutput(data, globalOpts);
+          return;
+        }
         const corpCode = await resolveCorpCode(opts.corp, apiKey);
         const reprtCode = REPRT_CODE_MAP[opts.quarter];
         if (!reprtCode) {
@@ -73,17 +84,23 @@ export function registerFinancialCommands(program: Command): void {
       });
     } else if (ep.cliName === 'multi-account' || ep.cliName === 'multi-index') {
       cmd
-        .requiredOption('--corp <codes>', 'Corp codes (comma-separated, max 100)')
-        .requiredOption('--year <YYYY>', 'Business year')
-        .requiredOption('--quarter <q1|half|q3|annual>', 'Report quarter');
+        .requiredOption('--corp <codes>', 'Corp codes, comma-separated, max 100 (e.g. "00126380,00258801")')
+        .requiredOption('--year <YYYY>', 'Business year in YYYY format (e.g. 2024). Data from 2015 onward')
+        .requiredOption('--quarter <q1|half|q3|annual>', 'Report quarter: q1 (Q1), half (semi-annual), q3 (Q3), annual (full year)');
 
       if (ep.cliName === 'multi-index') {
-        cmd.requiredOption('--idx-cl-code <code>', 'Index classification code');
+        cmd.requiredOption('--idx-cl-code <code>', 'Index classification: profitability (M210000), stability (M220000), growth (M230000), activity (M240000). Accepts aliases or raw codes');
       }
 
       cmd.action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);
+        if (globalOpts.json) {
+          const params = parseJsonParams(globalOpts.json);
+          const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
+          writeOutput(data, globalOpts);
+          return;
+        }
         const reprtCode = REPRT_CODE_MAP[opts.quarter];
         if (!reprtCode) {
           console.error(`Invalid quarter: ${opts.quarter}`);
@@ -102,10 +119,16 @@ export function registerFinancialCommands(program: Command): void {
       });
     } else if (ep.cliName === 'taxonomy') {
       cmd
-        .requiredOption('--sj-div <code>', 'Statement type (BS1, IS1, CIS1, CF1, CF2, SCE, etc.)')
+        .requiredOption('--sj-div <code>', 'Statement type code: BS1=Balance sheet, IS1=Income statement, CIS1=Comprehensive income, CF1/CF2=Cash flow, SCE=Equity changes')
         .action(async (opts) => {
           const globalOpts = getGlobalOpts(group);
           const apiKey = getApiKey(globalOpts.apiKey);
+          if (globalOpts.json) {
+            const params = parseJsonParams(globalOpts.json);
+            const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
+            writeOutput(data, globalOpts);
+            return;
+          }
           const data = await dartFetch({
             apiKey,
             path: `/${ep.path}`,

@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { dartFetch } from '../client.js';
 import { getApiKey } from '../config.js';
 import { resolveCorpCode } from '../corp-code.js';
+import { parseJsonParams } from '../json-params.js';
 import { writeOutput } from '../output.js';
 import { REGISTRY_BY_GROUP } from '../registry.js';
 import type { DartCliOptions } from '../types.js';
@@ -13,7 +14,13 @@ function getGlobalOpts(cmd: Command): DartCliOptions {
 export function registerMajorReportCommands(program: Command): void {
   const group = program
     .command('major')
-    .description('DS005: Major event reports (capital changes, bonds, M&A, etc. 36 APIs)');
+    .description(
+      'DS005: Major event reports — 36 APIs for significant corporate events.\n' +
+      'Covers: capital increases/reductions, bond issuances (convertible, exchangeable, warrant),\n' +
+      'treasury stock, M&A (mergers, splits, business/asset transfers), lawsuits,\n' +
+      'overseas listings, defaults, business suspension, rehabilitation.\n' +
+      'Data available from 2015 onward. Requires date range.'
+    );
 
   const endpoints = (REGISTRY_BY_GROUP.get('major') || []).filter(
     (ep) => ep.pattern === 'dateRange',
@@ -23,12 +30,18 @@ export function registerMajorReportCommands(program: Command): void {
     group
       .command(ep.cliName)
       .description(ep.summary)
-      .requiredOption('--corp <name-or-code>', 'Company name or corp_code')
-      .requiredOption('--from <YYYYMMDD>', 'Start date (filing date)')
-      .requiredOption('--to <YYYYMMDD>', 'End date (filing date)')
+      .requiredOption('--corp <name-or-code>', 'Company name (e.g. "삼성전자") or 8-digit corp_code')
+      .requiredOption('--from <YYYYMMDD>', 'Start date in YYYYMMDD format (filing date). Data from 2015 onward')
+      .requiredOption('--to <YYYYMMDD>', 'End date in YYYYMMDD format (filing date)')
       .action(async (opts) => {
         const globalOpts = getGlobalOpts(group);
         const apiKey = getApiKey(globalOpts.apiKey);
+        if (globalOpts.json) {
+          const params = parseJsonParams(globalOpts.json);
+          const data = await dartFetch({ apiKey, path: `/${ep.path}`, params });
+          writeOutput(data, globalOpts);
+          return;
+        }
         const corpCode = await resolveCorpCode(opts.corp, apiKey);
         const data = await dartFetch({
           apiKey,
