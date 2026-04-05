@@ -137,8 +137,9 @@
     font-family: var(--mono);
     font-size: 13px;
     color: var(--accent);
-    white-space: pre-wrap;
-    word-break: break-all;
+    white-space: pre;
+    overflow-x: auto;
+    padding-right: 70px;
   }
   .install-panel .dim { color: var(--text-dim); }
 
@@ -173,7 +174,7 @@
   .feature-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2px;
+    gap: 8px;
   }
   .feature {
     background: var(--surface);
@@ -261,8 +262,8 @@
     <nav>
       <div class="logo">dart-fss<span>-cli</span></div>
       <div class="toggles">
-        <button class="toggle-btn" id="theme-toggle" aria-label="Toggle theme">Light</button>
-        <button class="toggle-btn" id="lang-toggle" aria-label="Toggle language">KR</button>
+        <button class="toggle-btn" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme"></button>
+        <button class="toggle-btn" id="lang-toggle" aria-label="Toggle language" title="Toggle language"></button>
       </div>
       <div class="nav-links">
         <a href="https://github.com/kiyeonjeon21/dart-fss-cli">GitHub</a>
@@ -448,7 +449,7 @@ let currentTheme = 'dark';
 function setLang(lang) {
   currentLang = lang;
   document.documentElement.lang = lang === 'ko' ? 'ko' : 'en';
-  document.getElementById('lang-toggle').textContent = lang === 'en' ? 'KR' : 'EN';
+  document.getElementById('lang-toggle').textContent = lang === 'en' ? 'KR \u{1F1F0}\u{1F1F7}' : 'EN \u{1F1FA}\u{1F1F8}';
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
     if (i18n[lang][key]) el.innerHTML = i18n[lang][key];
@@ -459,7 +460,7 @@ function setLang(lang) {
 function setTheme(theme) {
   currentTheme = theme;
   document.documentElement.dataset.theme = theme;
-  document.getElementById('theme-toggle').textContent = theme === 'dark' ? 'Light' : 'Dark';
+  document.getElementById('theme-toggle').textContent = theme === 'dark' ? '\u{2600}\u{FE0F}' : '\u{1F319}';
   localStorage.setItem('dart-fss-theme', theme);
 }
 
