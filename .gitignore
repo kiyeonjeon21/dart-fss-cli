@@ -3,3 +3,9 @@ dist/
 .env
 *.tgz
 .playwright-mcp/
+
+# 작업 중 찍은 스크린샷 (문서에서 참조하지 않음)
+/dark-*.png
+/with-demo*.png
+/updated-page.png
+/final-check.png

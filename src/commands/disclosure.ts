@@ -1,10 +1,12 @@
+import { writeFileSync } from 'node:fs';
 import { Command } from 'commander';
-import { dartFetch } from '../client.js';
+import { dartFetch, dartFetchBinary } from '../client.js';
 import { getApiKey } from '../config.js';
-import { resolveCorpCode, lookupCorpCode, refreshCorpCodeCache } from '../corp-code.js';
+import { resolveCorpCode, lookupCorpCode, refreshCorpCodeCache, getCorpCodes } from '../corp-code.js';
 import { parseJsonParams } from '../json-params.js';
 import { writeOutput, writeDryRun } from '../output.js';
 import { REGISTRY_BY_GROUP } from '../registry.js';
+import { readZipEntries, decodeXml } from '../zip.js';
 import type { DartCliOptions } from '../types.js';
 
 function getGlobalOpts(cmd: Command): DartCliOptions {
@@ -81,6 +83,60 @@ export function registerDisclosureCommands(program: Command): void {
       if (globalOpts.dryRun) { writeDryRun('/company.json', params, globalOpts); return; }
       const data = await dartFetch({ apiKey, path: '/company.json', params });
       writeOutput(data, globalOpts);
+    });
+
+  group
+    .command('document')
+    .description(
+      'Download the original filing documents for a receipt number.\n' +
+      'DART returns a ZIP of one or more XML documents. By default this lists the documents\n' +
+      'without their bodies; use --extract to include the text, or --save to keep the raw ZIP.'
+    )
+    .requiredOption('--rcept-no <number>', '14-digit receipt number from "disclosure list" (rcept_no)')
+    .option('--extract', 'Include the full text of each document in the output')
+    .option('--save <file>', 'Write the raw ZIP to a file instead of parsing it')
+    .addHelpText('after', '\nExamples:\n  dart-fss disclosure document --rcept-no 20250131000123\n  dart-fss disclosure document --rcept-no 20250131000123 --extract | grep "법무법인"')
+    .action(async (opts) => {
+      const globalOpts = getGlobalOpts(group);
+      const apiKey = getApiKey(globalOpts.apiKey);
+      const params = globalOpts.json
+        ? parseJsonParams(globalOpts.json)
+        : { rcept_no: opts.rceptNo };
+      if (globalOpts.dryRun) { writeDryRun('/document.xml', params, globalOpts); return; }
+
+      const zip = await dartFetchBinary({ apiKey, path: '/document.xml', params });
+      if (opts.save) {
+        writeFileSync(opts.save, Buffer.from(zip));
+        console.error(`Saved to ${opts.save} (${(zip.byteLength / 1024).toFixed(1)} KB)`);
+        return;
+      }
+
+      const files = readZipEntries(zip).map((entry) => {
+        const content = decodeXml(entry.data);
+        return opts.extract
+          ? { name: entry.name, size: entry.data.byteLength, content }
+          : { name: entry.name, size: entry.data.byteLength };
+      });
+      writeOutput({ rcept_no: params.rcept_no, files }, globalOpts);
+    });
+
+  group
+    .command('corp-code')
+    .description(
+      'Dump the full corp_code registry (about 118,000 corporations) as JSON.\n' +
+      'Served from the local cache; use "corp-cache refresh" to force a re-download.'
+    )
+    .option('--listed', 'Only include listed corporations (those with a stock code)')
+    .addHelpText('after', '\nExamples:\n  dart-fss disclosure corp-code --listed --fields "corp_code,corp_name,stock_code"\n  dart-fss disclosure corp-code --listed --output listed.json')
+    .action(async (opts) => {
+      const globalOpts = getGlobalOpts(group);
+      const apiKey = getApiKey(globalOpts.apiKey);
+      if (globalOpts.dryRun) { writeDryRun('/corpCode.xml', {}, globalOpts); return; }
+      const entries = await getCorpCodes(apiKey);
+      const result = opts.listed
+        ? entries.filter((e) => e.stock_code && e.stock_code.trim() !== '')
+        : entries;
+      writeOutput(result, globalOpts);
     });
 
   const ds001Endpoints = REGISTRY_BY_GROUP.get('disclosure') || [];
